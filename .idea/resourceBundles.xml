@@ -4,12 +4,30 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/bundle.properties" />
     <file url="file://$PROJECT_DIR$/src/main/resources/bundle_ENG.properties" />
     <file url="file://$PROJECT_DIR$/src/main/resources/bundle_SWE.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/bundle_bundle_ja_JA.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/bundle_bundle_ja_JP.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/bundle_en_US.properties" />
     <file url="file://$PROJECT_DIR$/src/main/resources/bundle_fi_FI.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/bundle_sv_SE.properties" />
     <custom-resource-bundle>
-      <file value="file://$PROJECT_DIR$/src/main/resources/bundle.properties" />
       <file value="file://$PROJECT_DIR$/src/main/resources/bundle_ENG.properties" />
       <file value="file://$PROJECT_DIR$/src/main/resources/bundle_SWE.properties" />
+      <base-name>bundle</base-name>
+    </custom-resource-bundle>
+    <custom-resource-bundle>
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle_en_US.properties" />
       <file value="file://$PROJECT_DIR$/src/main/resources/bundle_fi_FI.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle_ja_JP.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle_sv_SE.properties" />
+      <base-name>bundle</base-name>
+    </custom-resource-bundle>
+    <custom-resource-bundle>
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle_ar_AR_properties.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle_en_US.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle_fi_FI.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/bundle_sv_SE.properties" />
       <base-name>bundle</base-name>
     </custom-resource-bundle>
   </component>
