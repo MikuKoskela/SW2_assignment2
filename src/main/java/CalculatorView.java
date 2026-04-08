@@ -17,6 +17,7 @@ public class CalculatorView extends Application {
     private Locale locale;
     private Map<String, String> texts;
     private String languageCode;
+    private final CartService cartService = new CartService();
 
     private int totalItems = 0;
     private int currentItem = 1;
@@ -86,6 +87,7 @@ public class CalculatorView extends Application {
                 return;
             }
 
+
             double total = 0;
             for (Item item : items) {
                 total += item.getValue() * item.getQuantity();
@@ -93,9 +95,14 @@ public class CalculatorView extends Application {
 
             totalLabel.setText(texts.get("totalCost") + " " + total);
 
-            itemAmountInput.setDisable(true);
-            itemPriceInput.setDisable(true);
-            calculateButton.setDisable(true);
+            int cartId = cartService.saveCartRecord(
+                    totalItems,
+                    total,
+                    languageCode
+            );
+
+            cartService.saveCartItems(cartId,items);
+
 
         } catch (Exception ex) {
             totalLabel.setText("Invalid input");
