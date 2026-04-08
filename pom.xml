@@ -31,6 +31,14 @@
 
 
         <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>3.3.3</version>
+        </dependency>
+
+
+
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.2</version>
@@ -80,7 +88,7 @@
                 </executions>
                 <configuration>
                     <excludes>
-                        <exclude>**/Main.class</exclude>
+                        <exclude>**/ShoppingCartApp.class</exclude>
                         <exclude>sun/util/resources/**</exclude>
                         <exclude>sun/text/resources/**</exclude>
                         <exclude>sun/util/cldr/**</exclude>

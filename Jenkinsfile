@@ -4,7 +4,6 @@ pipeline {
     tools {
         maven 'MAVEN_HOME'
         jdk 'JAVA_17'
-        git 'GIT-HOME'
     }
     environment {
         DOCKERHUB_REPO = 'mikukoskela/localization-app'
