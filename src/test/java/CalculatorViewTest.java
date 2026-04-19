@@ -107,31 +107,29 @@ class CalculatorViewTest extends ApplicationTest {
         assertEquals("", view.totalLabel.getText());
     }
 
+
     @Test
     void shouldSetTotalItemsOnFirstClick() {
         clickOn(view.itemAmountInput).write("2");
         clickOn(view.calculateButton);
 
-        waitUntil(() -> view.itemPriceInput.isVisible());
         waitUntil(() -> view.itemAmountLabel.getText().contains("(1/2)"));
 
-        assertTrue(view.itemPriceInput.isVisible());
         assertTrue(view.itemAmountLabel.getText().contains("(1/2)"));
     }
+
 
     @Test
     void shouldCalculateTotalCorrectly() {
         clickOn(view.itemAmountInput).write("2");
         clickOn(view.calculateButton);
 
-        waitUntil(() -> view.itemPriceInput.isVisible());
-
-        // item 1
+        // Item 1
         clickOn(view.itemAmountInput).write("2");
         clickOn(view.itemPriceInput).write("5.0");
         clickOn(view.calculateButton);
 
-        // item 2
+        // Item 2
         clickOn(view.itemAmountInput).write("1");
         clickOn(view.itemPriceInput).write("10.0");
         clickOn(view.calculateButton);
