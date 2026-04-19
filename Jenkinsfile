@@ -51,13 +51,14 @@ pipeline {
             ${tool 'SonarScanner'}\\bin\\sonar-scanner ^
             -Dsonar.projectKey=localization-app ^
             -Dsonar.projectName=Localization-App ^
-            -Dsonar.sources=src ^
-            -Dsonar.java.binaries=target/classes
+            -Dsonar.sources=src/main/java ^
+            -Dsonar.tests=src/test/java ^
+            -Dsonar.java.binaries=target/classes ^
+            -Dsonar.junit.reportPaths=target/surefire-reports
             """
                 }
             }
         }
-
             stage('Generate Coverage Report') {
             steps {
                 bat 'mvn jacoco:report'

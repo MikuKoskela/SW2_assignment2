@@ -1,0 +1,6 @@
+projectKey=SW2_week4
+serverUrl=http://localhost:9000
+serverVersion=26.3.0.120487
+dashboardUrl=http://localhost:9000/dashboard?id=SW2_week4
+ceTaskId=3e71c4b4-038e-4de7-8b6b-f08b979c70cc
+ceTaskUrl=http://localhost:9000/api/ce/task?id=3e71c4b4-038e-4de7-8b6b-f08b979c70cc
