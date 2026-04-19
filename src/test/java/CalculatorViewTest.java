@@ -15,6 +15,8 @@ import view.CalculatorView;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -24,6 +26,14 @@ class CalculatorViewTest extends ApplicationTest {
 
     private CalculatorView view;
     private CartService mockCartService;
+
+    private static void waitUntil(Callable<Boolean> condition) {
+        try {
+            WaitForAsyncUtils.waitFor(5, java.util.concurrent.TimeUnit.SECONDS, condition);
+        } catch (TimeoutException e) {
+            fail("Condition was not met in time");
+        }
+    }
 
     @Override
     public void start(Stage stage) {
@@ -101,7 +111,9 @@ class CalculatorViewTest extends ApplicationTest {
     void shouldSetTotalItemsOnFirstClick() {
         clickOn(view.itemAmountInput).write("2");
         clickOn(view.calculateButton);
-        WaitForAsyncUtils.waitForFxEvents();
+
+        waitUntil(() -> view.itemPriceInput.isVisible());
+        waitUntil(() -> view.itemAmountLabel.getText().contains("(1/2)"));
 
         assertTrue(view.itemPriceInput.isVisible());
         assertTrue(view.itemAmountLabel.getText().contains("(1/2)"));
@@ -111,17 +123,20 @@ class CalculatorViewTest extends ApplicationTest {
     void shouldCalculateTotalCorrectly() {
         clickOn(view.itemAmountInput).write("2");
         clickOn(view.calculateButton);
-        WaitForAsyncUtils.waitForFxEvents();
 
+        waitUntil(() -> view.itemPriceInput.isVisible());
+
+        // item 1
         clickOn(view.itemAmountInput).write("2");
         clickOn(view.itemPriceInput).write("5.0");
         clickOn(view.calculateButton);
-        WaitForAsyncUtils.waitForFxEvents();
 
+        // item 2
         clickOn(view.itemAmountInput).write("1");
         clickOn(view.itemPriceInput).write("10.0");
         clickOn(view.calculateButton);
-        WaitForAsyncUtils.waitForFxEvents();
+
+        waitUntil(() -> view.totalLabel.getText().contains("Total"));
 
         assertTrue(view.totalLabel.getText().contains("Total"));
     }
