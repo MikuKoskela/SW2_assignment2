@@ -1,9 +1,14 @@
+import javafx.application.Platform;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.testfx.framework.junit5.ApplicationTest;
+import org.testfx.util.WaitForAsyncUtils;
 import service.LocalizationService;
 import view.LanguageView;
 
@@ -19,13 +24,24 @@ class LanguageViewFXTest extends ApplicationTest {
     private LocalizationService mockService;
 
     @Override
-    public void start(javafx.stage.Stage stage) {
+    public void start(Stage stage) {
+        // ✅ MUST be created on FX thread
         view = new LanguageView();
 
-        // UI elements
+        // ✅ UI elements
         view.languageLabel = new Label();
         view.languageBox = new ComboBox<>();
         view.ContinueButton = new Button();
+
+        // ✅ Attach everything to a Scene
+        VBox root = new VBox(
+                view.languageLabel,
+                view.languageBox,
+                view.ContinueButton
+        );
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
 
         // ✅ MOCK SERVICE
         mockService = Mockito.mock(LocalizationService.class);
@@ -39,7 +55,9 @@ class LanguageViewFXTest extends ApplicationTest {
 
         view.setLocalizationService(mockService);
 
-        view.initialize();
+        // ✅ Initialize AFTER scene exists
+        Platform.runLater(view::initialize);
+        WaitForAsyncUtils.waitForFxEvents();
     }
 
     // -----------------------------
@@ -67,38 +85,38 @@ class LanguageViewFXTest extends ApplicationTest {
     // -----------------------------
     @Test
     void testLanguageChangeUpdatesLocale() {
-        view.languageBox.setValue("Finnish");
-        view.languageBox.getOnAction().handle(null);
+        Platform.runLater(() -> view.languageBox.setValue("Finnish"));
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertEquals("fi", view.currentLocale.getLanguage());
     }
 
     @Test
     void testSwitchLanguagesMultipleTimes() {
-        view.languageBox.setValue("Finnish");
-        view.languageBox.getOnAction().handle(null);
+        Platform.runLater(() -> view.languageBox.setValue("Finnish"));
+        WaitForAsyncUtils.waitForFxEvents();
         assertEquals("fi", view.currentLocale.getLanguage());
 
-        view.languageBox.setValue("Japanese");
-        view.languageBox.getOnAction().handle(null);
+        Platform.runLater(() -> view.languageBox.setValue("Japanese"));
+        WaitForAsyncUtils.waitForFxEvents();
         assertEquals("ja", view.currentLocale.getLanguage());
     }
 
     @Test
     void testUnknownLanguageDefaultsToEnglish() {
-        view.languageBox.setValue("Unknown");
-        view.languageBox.getOnAction().handle(null);
+        Platform.runLater(() -> view.languageBox.setValue("Unknown"));
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertEquals("en", view.currentLocale.getLanguage());
     }
 
     // -----------------------------
-    // UI TEXT UPDATE (NOW WORKS)
+    // UI TEXT UPDATE
     // -----------------------------
     @Test
     void testUpdateLanguageUpdatesUILabels() {
-        view.languageBox.setValue("English");
-        view.languageBox.getOnAction().handle(null);
+        Platform.runLater(() -> view.languageBox.setValue("English"));
+        WaitForAsyncUtils.waitForFxEvents();
 
         assertEquals("Language", view.languageLabel.getText());
         assertEquals("Continue", view.ContinueButton.getText());
@@ -115,7 +133,8 @@ class LanguageViewFXTest extends ApplicationTest {
     @Test
     void testContinueButtonClickDoesNotCrash() {
         assertDoesNotThrow(() -> {
-            view.ContinueButton.getOnAction().handle(null);
+            clickOn(view.ContinueButton);
+            WaitForAsyncUtils.waitForFxEvents();
         });
     }
 }

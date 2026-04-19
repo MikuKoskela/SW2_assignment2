@@ -9,6 +9,9 @@ pipeline {
         DOCKERHUB_REPO = 'mikukoskela/localization-app'
         DOCKER_IMAGE_TAG = "latest"
         IMAGE = "${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG}"
+        DB_USER = credentials('DB_USER')
+        DB_PASSWORD = credentials('DB_PASSWORD')
+
     }
 
 

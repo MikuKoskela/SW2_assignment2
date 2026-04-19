@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import view.LanguageView;
 
@@ -7,7 +8,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LanguageViewTest {
 
-    private final LanguageView view = new LanguageView();
+    private LanguageView view;
+
+    @BeforeEach
+    void setup() {
+        view = new LanguageView();
+    }
 
     @Test
     void testGetLocale_EnglishDefault() {

@@ -21,7 +21,7 @@ public class DatabaseCartRepository implements CartRepository {
         int cartId = -1;
 
         String sql =
-                "INSERT INTO cart (total_items, total_price, language_code) VALUES (?, ?, ?)";
+                "INSERT INTO cart_records (total_items, total_price, language_code) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt =
@@ -50,7 +50,7 @@ public class DatabaseCartRepository implements CartRepository {
     public void saveItems(int cartId, List<Item> items) {
 
         String sql =
-                "INSERT INTO cart_item (cart_id, price, quantity) VALUES (?, ?, ?)";
+                "INSERT INTO cart_items (cart_id, price, quantity) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
