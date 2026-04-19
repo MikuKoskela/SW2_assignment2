@@ -85,18 +85,18 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image to Docker Hub') {
+
+        stage("Push Docker Image to Docker Hub") {
             steps {
+                bat "docker context use default"
                 script {
-                    docker.withRegistry(
-                            'https://registry.hub.docker.com',
-                            'dockerhub-login'
-                    ) {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-login') {
                         dockerImage.push()
                     }
                 }
             }
         }
+
     }
 
     post {
