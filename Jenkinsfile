@@ -5,15 +5,14 @@ pipeline {
         maven 'MAVEN_HOME'
         jdk 'JAVA_21'
     }
+
     environment {
         DOCKERHUB_REPO = 'mikukoskela/localization-app'
-        DOCKER_IMAGE_TAG = "latest"
+        DOCKER_IMAGE_TAG = 'latest'
         IMAGE = "${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG}"
-        DB_USER = credentials('DB_USER')
-        DB_PASSWORD = credentials('DB_PASSWORD')
 
+         // SONAR_TOKEN = credentials('SONAR_TOKEN')
     }
-
 
     stages {
 
@@ -23,34 +22,41 @@ pipeline {
             }
         }
 
-        stage('mvn clean and compile') {
+        stage('Maven Clean & Compile') {
             steps {
-                bat 'mvn clean compile'            }
+                bat 'mvn clean compile'
+            }
         }
 
-        stage('mvn test') {
+        stage('Maven Test') {
             steps {
                 bat 'mvn test'
             }
         }
 
-        stage('mvn deploy') {
+        stage('Maven Package') {
             steps {
                 bat 'mvn package'
             }
         }
+
         stage('SonarQube Analysis') {
+            when {
+                expression {
+                    return fileExists('target/classes')
+                }
+            }
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
                     bat """
-        ${tool 'SonarScanner'}\\bin\\sonar-scanner ^
-        -Dsonar.projectKey=devops-demo ^
-        -Dsonar.sources=src ^
-        -Dsonar.projectName=DevOps-Demo ^
-        -Dsonar.host.url=http://localhost:9000 ^
-        -Dsonar.login=${env.SONAR_TOKEN} ^
-        -Dsonar.java.binaries=target/classes
-        """
+                    ${tool 'SonarScanner'}\\bin\\sonar-scanner ^
+                    -Dsonar.projectKey=localization-app ^
+                    -Dsonar.projectName=Localization-App ^
+                    -Dsonar.sources=src ^
+                    -Dsonar.java.binaries=target/classes ^
+                    -Dsonar.host.url=http://localhost:9000 ^
+                    -Dsonar.login=%SONAR_TOKEN%
+                    """
                 }
             }
         }
@@ -61,17 +67,19 @@ pipeline {
             }
         }
 
-        stage("Publish Coverage report") {
+        stage('Publish Coverage Report') {
             steps {
                 publishHTML(target: [
                         reportDir: 'target/site/jacoco',
                         reportFiles: 'index.html',
-                        reportName: 'JaCoCo Coverage'
+                        reportName: 'JaCoCo Coverage',
+                        keepAll: true,
+                        alwaysLinkToLastBuild: true
                 ])
             }
         }
 
-        stage("Build Docker Image") {
+        stage('Build Docker Image') {
             steps {
                 script {
                     dockerImage = docker.build("${IMAGE}", ".")
@@ -79,11 +87,13 @@ pipeline {
             }
         }
 
-        stage("Push Docker Image to Docker Hub") {
+        stage('Push Docker Image to Docker Hub') {
             steps {
-                bat "docker context use default"
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-login') {
+                    docker.withRegistry(
+                            'https://registry.hub.docker.com',
+                            'dockerhub-login'
+                    ) {
                         dockerImage.push()
                     }
                 }
@@ -93,13 +103,15 @@ pipeline {
 
     post {
         always {
-            junit 'target/surefire-reports/*.xml'
+            script {
+                junit 'target/surefire-reports/**/*.xml'
+            }
         }
         success {
-            echo 'Build succeeded'
+            echo 'Build succeeded ✅'
         }
         failure {
-            echo 'Build failed'
+            echo 'Build failed ❌'
         }
     }
 }
