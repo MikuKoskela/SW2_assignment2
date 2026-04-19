@@ -1,3 +1,5 @@
+package model;
+
 public class Item {
     double price;
     int quantity;

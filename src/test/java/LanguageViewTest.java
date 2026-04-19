@@ -1,24 +1,48 @@
 import org.junit.jupiter.api.Test;
+import view.LanguageView;
+
 import java.util.Locale;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LanguageViewTest {
+class LanguageViewTest {
+
+    private final LanguageView view = new LanguageView();
 
     @Test
-    void testEnglishLocale() {
-        LanguageView view = new LanguageView();
-        assertEquals(new Locale("en","US"), view.getLocale("English"));
+    void testGetLocale_EnglishDefault() {
+        Locale locale = view.getLocale("English");
+        assertEquals("en", locale.getLanguage());
     }
 
     @Test
-    void testFinnishLocale() {
-        LanguageView view = new LanguageView();
-        assertEquals(new Locale("fi","FI"), view.getLocale("Finnish"));
+    void testGetLocale_Finnish() {
+        Locale locale = view.getLocale("Finnish");
+        assertEquals("fi", locale.getLanguage());
+        assertEquals("FI", locale.getCountry());
     }
 
     @Test
-    void testJapaneseLocale() {
-        LanguageView view = new LanguageView();
-        assertEquals(new Locale("ja","JP"), view.getLocale("Japanese"));
+    void testGetLocale_Swedish() {
+        Locale locale = view.getLocale("Swedish");
+        assertEquals("sv", locale.getLanguage());
+    }
+
+    @Test
+    void testGetLocale_Japanese() {
+        Locale locale = view.getLocale("Japanese");
+        assertEquals("ja", locale.getLanguage());
+    }
+
+    @Test
+    void testGetLocale_Arabic() {
+        Locale locale = view.getLocale("Arabic");
+        assertEquals("ar", locale.getLanguage());
+    }
+
+    @Test
+    void testGetLocale_UnknownDefaultsToEnglish() {
+        Locale locale = view.getLocale("Unknown");
+        assertEquals("en", locale.getLanguage());
     }
 }

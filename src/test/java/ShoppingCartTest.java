@@ -1,3 +1,5 @@
+import model.Item;
+import model.ShoppingCart;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;

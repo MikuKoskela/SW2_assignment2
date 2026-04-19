@@ -1,3 +1,6 @@
+package view;
+
+
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -6,6 +9,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import model.Item;
+import repository.DatabaseCartRepository;
+import service.CartService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,33 +23,33 @@ public class CalculatorView extends Application {
     private Locale locale;
     private Map<String, String> texts;
     private String languageCode;
-    private final CartService cartService = new CartService();
+    private CartService cartService = new CartService(new DatabaseCartRepository());
 
     private int totalItems = 0;
     private int currentItem = 1;
-    private final List<Item> items = new ArrayList<>();
+    public final List<Item> items = new ArrayList<>();
 
     @FXML
-    private Button calculateButton;
+    public Button calculateButton;
 
     @FXML
-    private Label itemAmountLabel;
+    public Label itemAmountLabel;
 
     @FXML
-    private TextField itemAmountInput;
+    public TextField itemAmountInput;
 
     @FXML
-    private TextField itemPriceInput;
+    public TextField itemPriceInput;
 
     @FXML
-    private Label totalLabel;
+    public Label totalLabel;
 
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/calculator.fxml"));
         Scene scene = new Scene(loader.load());
         stage.setScene(scene);
-        stage.setTitle("Miku Koskela / Calculator");
+        stage.setTitle("Miku Koskela / model.Calculator");
         stage.show();
     }
 
@@ -106,7 +112,6 @@ public class CalculatorView extends Application {
 
         } catch (Exception ex) {
             totalLabel.setText("Invalid input");
-            ex.printStackTrace();
         }
     }
 
@@ -128,5 +133,23 @@ public class CalculatorView extends Application {
 
     public void setLanguageCode(String languageCode) {
         this.languageCode = languageCode;
+    }
+    public void setCartService(CartService service) {
+        this.cartService = service;
+    }
+
+    public int getCurrentItem() {
+        return currentItem;
+    }
+    public int getTotalItems() {
+        return totalItems;
+    }
+
+    public void setCurrentItem(int currentItem) {
+        this.currentItem = currentItem;
+    }
+
+    public void setTotalItems(int totalItems) {
+        this.totalItems = totalItems;
     }
 }

@@ -1,3 +1,5 @@
+package view;
+
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -6,22 +8,26 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import service.LocalizationService;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.util.Locale;
 import java.util.Map;
 
 public class LanguageView extends Application {
+    private static final Logger logger = Logger.getLogger(LanguageView.class.getName());
+    @FXML
+    public Label languageLabel;
 
     @FXML
-    private Label languageLabel;
+    public ComboBox<String> languageBox;
 
     @FXML
-    private ComboBox<String> languageBox;
+    public Button ContinueButton;
 
-    @FXML
-    private Button ContinueButton;
-
-    private final LocalizationService localizationService = new LocalizationService();
+    private LocalizationService localizationService = new LocalizationService();
     private Map<String, String> texts;
     public Locale currentLocale;
 
@@ -84,7 +90,7 @@ public class LanguageView extends Application {
             controller.setLanguageCode(currentLocale.getLanguage()); // for DB save
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.log(Level.SEVERE, "Error in opening calculator", ex);
         }
     }
 
@@ -97,7 +103,9 @@ public class LanguageView extends Application {
             default         -> new Locale("en", "US");
         };
     }
-
+    public void setLocalizationService(LocalizationService service) {
+        this.localizationService = service;
+    }
     public static void main(String[] args) {
         launch(args);
     }
