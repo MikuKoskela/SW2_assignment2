@@ -40,28 +40,25 @@ pipeline {
             }
         }
 
+
         stage('SonarQube Analysis') {
             when {
-                expression {
-                    return fileExists('target/classes')
-                }
+                expression { fileExists('target/classes') }
             }
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
                     bat """
-                    ${tool 'SonarScanner'}\\bin\\sonar-scanner ^
-                    -Dsonar.projectKey=localization-app ^
-                    -Dsonar.projectName=Localization-App ^
-                    -Dsonar.sources=src ^
-                    -Dsonar.java.binaries=target/classes ^
-                    -Dsonar.host.url=http://localhost:9000 ^
-                    -Dsonar.login=%SONAR_TOKEN%
-                    """
+            ${tool 'SonarScanner'}\\bin\\sonar-scanner ^
+            -Dsonar.projectKey=localization-app ^
+            -Dsonar.projectName=Localization-App ^
+            -Dsonar.sources=src ^
+            -Dsonar.java.binaries=target/classes
+            """
                 }
             }
         }
 
-        stage('Generate Coverage Report') {
+            stage('Generate Coverage Report') {
             steps {
                 bat 'mvn jacoco:report'
             }
