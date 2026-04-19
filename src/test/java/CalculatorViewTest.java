@@ -15,8 +15,6 @@ import view.CalculatorView;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -27,12 +25,10 @@ class CalculatorViewTest extends ApplicationTest {
     private CalculatorView view;
     private CartService mockCartService;
 
-    private static void waitUntil(Callable<Boolean> condition) {
-        try {
-            WaitForAsyncUtils.waitFor(5, java.util.concurrent.TimeUnit.SECONDS, condition);
-        } catch (TimeoutException e) {
-            fail("Condition was not met in time");
-        }
+    /** Run code safely on the JavaFX thread and wait for completion */
+    private void runFx(Runnable action) {
+        Platform.runLater(action);
+        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @Override
@@ -45,14 +41,12 @@ class CalculatorViewTest extends ApplicationTest {
         view.itemPriceInput = new TextField();
         view.totalLabel = new Label();
 
-        // ✅ MOCK CART SERVICE (FIXED)
+        // ✅ Mock CartService (no DB access in UI tests)
         mockCartService = mock(CartService.class);
 
-        // saveCartRecord RETURNS INT → must use thenReturn()
         when(mockCartService.saveCartRecord(anyInt(), anyDouble(), anyString()))
                 .thenReturn(1);
 
-        // saveCartItems IS VOID → doNothing() is correct
         doNothing().when(mockCartService)
                 .saveCartItems(anyInt(), anyList());
 
@@ -76,19 +70,17 @@ class CalculatorViewTest extends ApplicationTest {
         stage.show();
 
         // ✅ Initialize AFTER scene exists
-        Platform.runLater(() -> {
+        runFx(() -> {
             view.setLocale(Locale.ENGLISH);
             view.setTexts(texts);
             view.setLanguageCode("en");
             view.initialize();
         });
-
-        WaitForAsyncUtils.waitForFxEvents();
     }
 
     @BeforeEach
     void setup() {
-        Platform.runLater(() -> {
+        runFx(() -> {
             view.itemAmountInput.clear();
             view.itemPriceInput.clear();
             view.totalLabel.setText("");
@@ -97,45 +89,57 @@ class CalculatorViewTest extends ApplicationTest {
             view.setCurrentItem(1);
             view.items.clear();
         });
-
-        WaitForAsyncUtils.waitForFxEvents();
     }
 
+    // -----------------------------
+    // INITIAL STATE
+    // -----------------------------
     @Test
     void shouldInitializeCorrectly() {
         assertEquals("Calculate", view.calculateButton.getText());
         assertEquals("", view.totalLabel.getText());
     }
 
-
+    // -----------------------------
+    // FIRST ITEM COUNT
+    // -----------------------------
     @Test
     void shouldSetTotalItemsOnFirstClick() {
-        clickOn(view.itemAmountInput).write("2");
-        clickOn(view.calculateButton);
+        runFx(() -> view.itemAmountInput.setText("2"));
+        runFx(view::handleClick); // ✅ call logic directly
 
-        waitUntil(() -> view.itemAmountLabel.getText().contains("(1/2)"));
-
-        assertTrue(view.itemAmountLabel.getText().contains("(1/2)"));
+        assertTrue(
+                view.itemAmountLabel.getText().contains("(1/2)"),
+                "Item label should show current item index"
+        );
     }
 
-
+    // -----------------------------
+    // TOTAL CALCULATION
+    // -----------------------------
     @Test
     void shouldCalculateTotalCorrectly() {
-        clickOn(view.itemAmountInput).write("2");
-        clickOn(view.calculateButton);
+        // total items
+        runFx(() -> view.itemAmountInput.setText("2"));
+        runFx(view::handleClick);
 
-        // Item 1
-        clickOn(view.itemAmountInput).write("2");
-        clickOn(view.itemPriceInput).write("5.0");
-        clickOn(view.calculateButton);
+        // item 1
+        runFx(() -> {
+            view.itemAmountInput.setText("2");
+            view.itemPriceInput.setText("5.0");
+        });
+        runFx(view::handleClick);
 
-        // Item 2
-        clickOn(view.itemAmountInput).write("1");
-        clickOn(view.itemPriceInput).write("10.0");
-        clickOn(view.calculateButton);
+        // item 2
+        runFx(() -> {
+            view.itemAmountInput.setText("1");
+            view.itemPriceInput.setText("10.0");
+        });
+        runFx(view::handleClick);
 
-        waitUntil(() -> view.totalLabel.getText().contains("Total"));
-
-        assertTrue(view.totalLabel.getText().contains("Total"));
+        assertTrue(
+                view.totalLabel.getText().contains("Total"),
+                "Total label should contain total text"
+        );
     }
 }

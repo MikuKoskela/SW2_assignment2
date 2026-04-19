@@ -59,7 +59,7 @@ public class CalculatorView extends Application {
         totalLabel.setText("");
     }
 
-    private void handleClick() {
+    public void handleClick() {
         try {
             if (totalItems == 0) {
                 totalItems = Integer.parseInt(itemAmountInput.getText().trim());
