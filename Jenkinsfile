@@ -42,19 +42,17 @@ pipeline {
 
 
         stage('SonarQube Analysis') {
-            when {
-                expression { fileExists('target/classes') }
-            }
             steps {
                 withSonarQubeEnv('SonarQubeServer') {
                     bat """
-            ${tool 'SonarScanner'}\\bin\\sonar-scanner ^
+            sonar-scanner ^
             -Dsonar.projectKey=localization-app ^
             -Dsonar.projectName=Localization-App ^
             -Dsonar.sources=src/main/java ^
             -Dsonar.tests=src/test/java ^
             -Dsonar.java.binaries=target/classes ^
-            -Dsonar.junit.reportPaths=target/surefire-reports
+            -Dsonar.junit.reportPaths=target/surefire-reports ^
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
             """
                 }
             }
