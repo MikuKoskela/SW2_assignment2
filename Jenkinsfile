@@ -39,7 +39,23 @@ pipeline {
                 bat 'mvn package'
             }
         }
+        stage('Generate Coverage Report') {
+            steps {
+                bat 'mvn jacoco:report'
+            }
+        }
 
+        stage('Publish Coverage Report') {
+            steps {
+                publishHTML(target: [
+                        reportDir: 'target/site/jacoco',
+                        reportFiles: 'index.html',
+                        reportName: 'JaCoCo Coverage',
+                        keepAll: true,
+                        alwaysLinkToLastBuild: true
+                ])
+            }
+        }
 
         stage('SonarQube Analysis') {
             steps {
@@ -57,23 +73,7 @@ pipeline {
                 }
             }
         }
-            stage('Generate Coverage Report') {
-            steps {
-                bat 'mvn jacoco:report'
-            }
-        }
 
-        stage('Publish Coverage Report') {
-            steps {
-                publishHTML(target: [
-                        reportDir: 'target/site/jacoco',
-                        reportFiles: 'index.html',
-                        reportName: 'JaCoCo Coverage',
-                        keepAll: true,
-                        alwaysLinkToLastBuild: true
-                ])
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
