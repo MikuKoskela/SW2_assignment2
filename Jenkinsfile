@@ -37,6 +37,7 @@ pipeline {
         stage('Maven Package') {
             steps {
                 bat 'mvn package'
+                bat 'mvn dependency:copy-dependencies'
             }
         }
         stage('Generate Coverage Report') {
