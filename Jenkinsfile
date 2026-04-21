@@ -10,8 +10,6 @@ pipeline {
         DOCKERHUB_REPO = 'mikukoskela/localization-app'
         DOCKER_IMAGE_TAG = 'latest'
         IMAGE = "${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG}"
-
-         // SONAR_TOKEN = credentials('SONAR_TOKEN')
     }
 
     stages {
@@ -22,31 +20,39 @@ pipeline {
             }
         }
 
-        stage('Maven Clean & Compile') {
+        /* ✅ ONE Maven command:
+         * - compiles
+         * - runs tests
+         * - collects JaCoCo execution data
+         * - generates jacoco.xml + HTML
+         */
+        stage('Build, Test & Coverage') {
             steps {
-                bat 'mvn clean compile'
+                bat 'mvn clean verify'
             }
         }
 
-        stage('Maven Test') {
+        stage('SonarQube Analysis') {
             steps {
-                bat 'mvn test'
-            }
-        }
-
-        stage('Maven Package') {
-            steps {
-                bat 'mvn package'
-                bat 'mvn dependency:copy-dependencies'
-            }
-        }
-        stage('Generate Coverage Report') {
-            steps {
-                bat 'mvn jacoco:report'
+                withSonarQubeEnv('SonarQubeServer') {
+                    bat """
+                    sonar-scanner ^
+                    -Dsonar.projectKey=localization-app ^
+                    -Dsonar.projectName=Localization-App ^
+                    -Dsonar.sources=src/main/java ^
+                    -Dsonar.tests=src/test/java ^
+                    -Dsonar.java.binaries=target/classes ^
+                    -Dsonar.junit.reportPaths=target/surefire-reports ^
+                    -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                    """
+                }
             }
         }
 
         stage('Publish Coverage Report') {
+            when {
+                expression { fileExists('target/site/jacoco/index.html') }
+            }
             steps {
                 publishHTML(target: [
                         reportDir: 'target/site/jacoco',
@@ -58,51 +64,32 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQubeServer') {
-                    bat """
-            sonar-scanner ^
-            -Dsonar.projectKey=localization-app ^
-            -Dsonar.projectName=Localization-App ^
-            -Dsonar.sources=src/main/java ^
-            -Dsonar.tests=src/test/java ^
-            -Dsonar.java.binaries=target/classes ^
-            -Dsonar.junit.reportPaths=target/surefire-reports ^
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-            """
-                }
-            }
-        }
-
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("${IMAGE}", ".")
+                    def dockerImage = docker.build("${IMAGE}", ".")
                 }
             }
         }
 
-
-        stage("Push Docker Image to Docker Hub") {
+        stage('Push Docker Image to Docker Hub') {
             steps {
-                bat "docker context use default"
+                bat 'docker context use default'
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-login') {
-                        dockerImage.push()
+                    docker.withRegistry(
+                            'https://registry.hub.docker.com',
+                            'dockerhub-login'
+                    ) {
+                        docker.build("${IMAGE}", ".").push()
                     }
                 }
             }
         }
-
     }
 
     post {
         always {
-            script {
-                junit 'target/surefire-reports/**/*.xml'
-            }
+            junit 'target/surefire-reports/**/*.xml'
         }
         success {
             echo 'Build succeeded ✅'
