@@ -20,7 +20,7 @@
 
     <dependencies>
 
-        <!-- JavaFX -->
+        <!-- ✅ JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -32,14 +32,14 @@
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- MariaDB -->
+        <!-- ✅ MariaDB -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
             <version>3.3.3</version>
         </dependency>
 
-        <!-- Testing -->
+        <!-- ✅ Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -68,7 +68,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ⚠️ Monocle is Java 8-era; keep ONLY if you truly need headless CI -->
+        <!-- ⚠️ Optional: only needed for headless JavaFX CI -->
         <dependency>
             <groupId>org.testfx</groupId>
             <artifactId>openjfx-monocle</artifactId>
@@ -101,29 +101,46 @@
                 </configuration>
             </plugin>
 
-            <!-- ✅ Unit tests -->
+            <!-- ✅ JUnit 5 / Surefire -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.1</version>
             </plugin>
 
-            <!-- ✅ Code coverage (Java 21 compatible) -->
+            <!-- ✅ ✅ JaCoCo (THIS WAS THE MISSING PIECE) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.11</version>
+                <executions>
+
+                    <!-- Attach agent during tests -->
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+
+                    <!-- Generate XML + HTML report -->
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+
+                </executions>
             </plugin>
 
-            <!-- ✅ Fat JAR (optional but okay) -->
+            <!-- ✅ Standard JAR (Docker-friendly) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.8.0</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.1</version>
                 <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
                     <archive>
                         <manifest>
                             <mainClass>view.LanguageView</mainClass>
